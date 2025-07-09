@@ -10,23 +10,13 @@ def open_homepage(context):
     context.driver.get("https://www.saucedemo.com")
     context.wait = WebDriverWait(context.driver, 10)
 
-@when('I enter username "{username}"')
-def enter_username(context, username):
-    username_input = context.wait.until(EC.element_to_be_clickable((By.ID, "user-name")))
-    username_input.send_keys(username)
+@when('I log in')
+def log_in(context):
+    context.wait.until(EC.element_to_be_clickable((By.ID, "user-name"))).send_keys("standard_user")
+    context.wait.until(EC.element_to_be_clickable((By.ID, "password"))).send_keys("secret_sauce")
+    context.wait.until(EC.element_to_be_clickable((By.ID, "login-button"))).click()
 
-@when('I enter password "{password}"')
-def enter_password(context, password):
-    password_input = context.wait.until(EC.element_to_be_clickable((By.ID, "password")))
-    password_input.send_keys(password)
-
-@when('I click the login button')
-def click_login(context):
-    login_button = context.wait.until(EC.element_to_be_clickable((By.ID, "login-button")))
-    login_button = context.wait.until(EC.element_to_be_clickable((By.ID, "login-button")))
-    login_button.click()
-
-@then('I should be logged in successfully')
+@then('I should see the inventory page')
 def check_login_success(context):
     context.wait.until(EC.presence_of_element_located((By.ID, "inventory_container")))
 
@@ -35,6 +25,22 @@ def check_login_credentials(context, expected_text):
     context.wait.until(EC.presence_of_element_located((By.ID, "login_credentials")))
     element = context.wait.until(EC.presence_of_element_located((By.ID, "login_credentials")))
     assert expected_text in element.text
+
+@then('I should see a list of users on the homepage')
+def check_user_list(context):
+    element = context.wait.until(EC.presence_of_element_located((By.ID, "login_credentials")))
+    usernames = element.text.splitlines()[1:]
+    
+    expected_usernames = [
+        "standard_user",
+        "locked_out_user",
+        "problem_user",
+        "performance_glitch_user",
+        "error_user",
+        "visual_user"
+    ]
+
+    assert usernames == expected_usernames, f"Usernames do not match.\nExpected: {expected_usernames}\nFound: {usernames}"
 
 def after_scenario(context, scenario):
     context.driver.quit()
