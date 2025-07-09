@@ -14,6 +14,7 @@ def setup_browser():
     
     driver = webdriver.Chrome(service=service, options=chrome_options)
     driver.get("https://www.saucedemo.com")
+    driver.wait = WebDriverWait(driver, 10)
     yield driver
 
     print("Closing browser...")
@@ -21,22 +22,18 @@ def setup_browser():
 
 
 def test_grab_content(setup_browser):
-    driver = setup_browser
-    wait = WebDriverWait(driver, 10)
-    element = wait.until(EC.presence_of_element_located((By.ID, "login_credentials")))
+    element = setup_browser.wait.until(EC.presence_of_element_located((By.ID, "login_credentials")))
     content = element.text
     print("Content:", content)
     assert "standard_user" in content, "Expected login credentials not found!"
 
 
 def test_login(setup_browser):
-    driver = setup_browser
-    wait = WebDriverWait(driver, 10)
-    username_input = wait.until(EC.element_to_be_clickable((By.ID, "user-name")))
+    username_input = setup_browser.wait.until(EC.element_to_be_clickable((By.ID, "user-name")))
     username_input.send_keys("standard_user")
-    
-    password_input = wait.until(EC.element_to_be_clickable((By.ID, "password")))
+
+    password_input = setup_browser.wait.until(EC.element_to_be_clickable((By.ID, "password")))
     password_input.send_keys("secret_sauce")
-    
-    login_button = wait.until(EC.element_to_be_clickable((By.ID, "login-button")))
+
+    login_button = setup_browser.wait.until(EC.element_to_be_clickable((By.ID, "login-button")))
     login_button.click()
